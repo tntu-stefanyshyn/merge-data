@@ -5,6 +5,7 @@ const readline = require("readline");
 const INPUT_DIR = "./csv_files";
 const OUTPUT_FILE = "./merged_output.csv";
 const SEPARATOR = ";";
+const FILES_TO_MERGE_COUNT = 3; // Скільки CSV файлів мерджити (<= 0 або не число = всі)
 
 async function mergeCSVs() {
   if (!fs.existsSync(INPUT_DIR)) {
@@ -16,7 +17,12 @@ async function mergeCSVs() {
     .readdirSync(INPUT_DIR)
     .filter((file) => file.endsWith(".csv"));
 
-  if (files.length === 0) {
+  const filesToMerge =
+    Number.isInteger(FILES_TO_MERGE_COUNT) && FILES_TO_MERGE_COUNT > 0
+      ? files.slice(0, FILES_TO_MERGE_COUNT)
+      : files;
+
+  if (filesToMerge.length === 0) {
     console.log("У папці немає CSV файлів.");
     return;
   }
@@ -24,7 +30,7 @@ async function mergeCSVs() {
   const writeStream = fs.createWriteStream(OUTPUT_FILE);
   let isFirstFile = true;
 
-  for (const file of files) {
+  for (const file of filesToMerge) {
     const filePath = path.join(INPUT_DIR, file);
     const label = path.parse(file).name;
 
